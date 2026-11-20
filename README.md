@@ -20,7 +20,7 @@ In Options > Gamepad, under Smooth Stick Aim:
 | Far Crosshair | On | The crosshair stays at full distance in the direction you push, however lightly you push. Throws only use the crosshair's direction, so where they go doesn't change. The game also uses the crosshair's distance to move the camera ahead of you, so with this on the camera always looks ahead (about 72 px) while you aim. Turn it off for the base game's behaviour: a light push keeps the crosshair close and the camera still, a full push looks ahead. |
 | Stick Dead Zone | 8% | How far a stick moves before it counts, the same in every direction (0-20%). Raise it if a worn stick drifts. |
 | Fine Aim | 50% | While the right stick turns slowly (under 40°/s), the aim turns only part as far: at 50%, half. Small adjustments then take twice the thumb movement. Faster turns are 1:1 and pull the aim back onto the stick (fully above 160°/s); the aim never strays more than 15° from the stick, and every new push starts exactly on it. 0% is off. It doesn't change throw spread. |
-| Aim Speed | 100% | How fast the crosshair swings to where the stick points (50-300%; 100% is the base game, which closes about 30% of the remaining turn each frame). Faster settings trail the stick less but look jumpier, because they stop smoothing out the stick's uneven updates. Throw spread doesn't change. |
+| Aim Speed | 75% | How fast the crosshair swings to where the stick points (50-300%; 100% is the base game, which closes about 30% of the remaining turn each frame). Faster settings trail the stick less but look jumpier, because they stop smoothing out the stick's uneven updates. Throw spread doesn't change. |
 
 ### How the defaults were chosen
 
@@ -28,6 +28,7 @@ From a 20-second recording of real aiming on an AYN Thor, replayed through the m
 
 | Aim Speed | Crosshair lag behind the stick (average) | Unevenness of motion while turning | Average throw spread |
 |---|---|---|---|
+| 75% | 5.0° | 0.14 | 4.9° |
 | 100% (base game) | 3.3° | 0.18 | 4.9° |
 | 150% | 1.9° | 0.25 | 4.9° |
 | 200% | 0.9° | 0.31 | 3.8° |
@@ -35,7 +36,7 @@ From a 20-second recording of real aiming on an AYN Thor, replayed through the m
 
 (Unevenness: how much the crosshair's frame-to-frame steps vary during a steady turn, relative to their size. The Thor's stick sends readings in bursts, so some frames get none and the next gets two; the base game's smoothing hides that.)
 
-- **Aim Speed 100%.** Lag and jumpiness trade off directly, and averaging a few frames instead did no better. On the Thor, 75-100% felt best and 300% too jumpy, so the default stays the base game. Faster settings never add throw spread.
+- **Aim Speed 75%.** Lag and jumpiness trade off directly, and averaging a few frames instead did no better, so this is down to feel. On the Thor, 75% felt best in hand (100% close behind, 300% too jumpy). Faster settings never add throw spread.
 - **Fine Aim 50%.** A replay can't score this one, because how you correct depends on what you see. 50% doubles the precision of slow adjustments and still leaves a 30° range of fine control before the 15° limit takes over (75% would leave 20°).
 - **Stick Dead Zone 8%.** The Thor's stick returns to exactly 0, so any value works on it. 8% is for other controllers: a worn stick that rests a little off centre could otherwise keep the crosshair up after you let go.
 - **Far Crosshair on.** A camera preference: on looks ahead while aiming, off keeps the base game's camera.
