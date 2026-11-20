@@ -15,8 +15,9 @@
 //   distance to look ahead with the camera, so with this on the camera always looks ahead
 //   while aiming. Off = stock: light push, crosshair close and camera still.
 // - Stick Dead Zone: size of the round dead zone (8% by default).
-// - Aim Speed: how fast the crosshair swings to the stick's direction (100% = stock). The game
-//   widens throw spread when the crosshair turns fast, so high values add a little spread.
+// - Aim Speed (300% by default): how fast the crosshair swings to the stick's direction. 100% is
+//   stock, which trails a turning stick by about 0.1 s. In a replay of real Thor input with the
+//   game's spread rules, 300% cut the lag from 3.4 to 0.2 deg on average without adding spread.
 // - Fine Aim (50% by default): while the right stick turns slowly (under 40 deg/s), the aim
 //   turns only part as far (50% = half), so small adjustments take bigger thumb movements.
 //   Faster turns are 1:1 and pull the aim back onto the stick (fully above 160 deg/s); the aim
@@ -44,7 +45,7 @@ ig.module('mod.smooth-stick-aim')
 		var DEFAULTS = {};
 		DEFAULTS[OPT_FAR] = true;
 		DEFAULTS[OPT_DEAD_ZONE] = 0.08;
-		DEFAULTS[OPT_AIM_SPEED] = 1;
+		DEFAULTS[OPT_AIM_SPEED] = 3;
 		DEFAULTS[OPT_FINE] = 0.5;
 
 		var cat = sc.OPTION_CATEGORY.GAMEPAD;
