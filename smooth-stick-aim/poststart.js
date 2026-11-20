@@ -1,4 +1,5 @@
 // Language files are loaded by now: label the settings (English in every language).
+// The help bar is one line: the game's own hints stay under about 90 characters.
 (function () {
 	var gui = ig.lang.labels && ig.lang.labels.sc && ig.lang.labels.sc.gui;
 	var opts = gui && gui.options;
@@ -6,16 +7,14 @@
 	if (opts.headers) opts.headers['smooth-stick-aim'] = 'Smooth Stick Aim';
 	opts['smooth-stick-aim-far-crosshair'] = {
 		name: 'Far Crosshair',
-		description:
-			'Keep the crosshair at full distance however far you push the stick. Throws go the same way; the camera looks ahead whenever you aim. Off: like the base game.'
+		description: 'Tick to keep the crosshair at full distance. The camera then looks ahead.'
 	};
 	opts['smooth-stick-aim-dead-zone'] = {
 		name: 'Stick Dead Zone',
-		description: 'How far a stick moves before it counts, in every direction. Raise it if a worn stick drifts.'
+		description: 'How far a stick moves before it counts. Raise it if a stick drifts.'
 	};
 	opts['smooth-stick-aim-aim-speed'] = {
 		name: 'Aim Speed',
-		description:
-			'How fast the crosshair swings to where the stick points. 100% is the base game. Faster adds a little throw spread after quick turns.'
+		description: 'How fast the crosshair turns to the stick. \\c[3]100%\\c[0] is the base game.'
 	};
 })();
