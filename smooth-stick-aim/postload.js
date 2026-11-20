@@ -3,10 +3,11 @@
 // Stock CrossCode checks each stick axis on its own (|x| or |y| over ~0.25): a square dead
 // zone, so a diagonal push needs much more travel to start aiming than a straight one. It also
 // drags the crosshair toward you while a released stick springs back to centre. Many sticks
-// (e.g. the AYN Thor's) reach about 1.3 on the diagonals, so diagonal aim reaches further.
+// reach about 1.3 on the diagonals, so diagonal aim reaches further.
 //
 // This mod, for each stick on each pad:
-// - applies a round dead zone, rescales the rest to start at 0 and caps the length at 1;
+// - applies a round dead zone and rescales the rest to start at 0 (each axis stays within 1,
+//   as in the base game, so menus and walking read diagonals as before);
 // - decides "stick pushed" from that length, with hysteresis;
 // - holds the crosshair still while the right stick snaps back to centre after a release.
 // Settings (Options > Gamepad):
@@ -17,7 +18,7 @@
 // - Stick Dead Zone: size of the round dead zone (8% by default).
 // - Aim Speed (75% by default; 100% = stock): how fast the crosshair swings to the stick's
 //   direction. Faster cuts the lag behind the stick but shows the stick's bursty updates as jumpy
-//   motion (the Thor's stick sends readings in bursts); it doesn't add throw spread.
+//   motion (many sticks send readings in bursts); it doesn't add throw spread.
 // - Fine Aim (50% by default): while the right stick turns slowly (under 40 deg/s), the aim
 //   turns only part as far (50% = half), so small adjustments take bigger thumb movements.
 //   Faster turns are 1:1 and pull the aim back onto the stick (fully above 160 deg/s); the aim
@@ -104,12 +105,18 @@ ig.module('mod.smooth-stick-aim')
 			return typeof v === 'number' && isFinite(v) ? v : 0;
 		}
 
-		// Raw stick (x, y) -> shaped [x, y] in the same direction, length 0..1.
+		function clamp1(v) {
+			return v > 1 ? 1 : v < -1 ? -1 : v;
+		}
+
+		// Raw stick (x, y) -> shaped [x, y] in the same direction, each axis within -1..1. The
+		// length isn't capped at 1: menus check each axis against 0.8, and a capped full diagonal
+		// (0.71, 0.71) would miss both. Only placing the crosshair caps the length.
 		function shape(x, y, deadZone) {
 			var r = Math.sqrt(x * x + y * y);
 			if (!(r > deadZone)) return [0, 0]; // also catches NaN and r = 0
-			var len = Math.min(1, (r - deadZone) / (1 - deadZone));
-			return [(x / r) * len, (y / r) * len];
+			var len = (r - deadZone) / (1 - deadZone);
+			return [clamp1((x / r) * len), clamp1((y / r) * len)];
 		}
 
 		function newStick() {
@@ -153,7 +160,9 @@ ig.module('mod.smooth-stick-aim')
 				var out = shape(x, y, deadZone);
 				pad.axesStates[AXES[i][0]] = out[0];
 				pad.axesStates[AXES[i][1]] = out[1];
-				var len = Math.sqrt(out[0] * out[0] + out[1] * out[1]);
+				// Capped, so turning from a diagonal (about 1.3) to a straight push (1) isn't a drop
+				// that looks like a release.
+				var len = Math.min(1, Math.sqrt(out[0] * out[0] + out[1] * out[1]));
 
 				st.down = st.down ? len > DOWN_OFF : len > DOWN_ON;
 				if (!st.down) st.releasing = false;
@@ -167,7 +176,8 @@ ig.module('mod.smooth-stick-aim')
 					if (len > st.releaseMin + 0.1 || st.releaseTime > RELEASE_MAX) st.releasing = false;
 				}
 				st.len = len;
-				if (i === 1) updateAim(st, out[0], out[1], dt, fine);
+				// The raw direction: the same as the shaped one before an axis is clamped to 1.
+				if (i === 1) updateAim(st, x, y, dt, fine);
 			}
 		}
 
@@ -221,7 +231,7 @@ ig.module('mod.smooth-stick-aim')
 				var other = this.parent(isX ? ig.AXES.RIGHT_STICK_Y : ig.AXES.RIGHT_STICK_X, false);
 				var len = Math.sqrt(v * v + other * other);
 				if (!(len > 0)) return 0;
-				var out = this.smoothStickAimFar ? 1 : len;
+				var out = this.smoothStickAimFar ? 1 : Math.min(1, len);
 				var aim = aimOf(this);
 				if (aim === null) return (v / len) * out;
 				return (isX ? Math.cos(aim) : Math.sin(aim)) * out;

@@ -1,49 +1,89 @@
-# CrossCode mods
+# CrossCode Mods
 
-Small CrossCode mods for CCLoader. Each folder is one mod; each mod has its own release with a `.ccmod` file.
+Small quality-of-life mods for [CrossCode](https://store.steampowered.com/app/368340/CrossCode/), made for [CCLoader](https://github.com/CCDirectLink/CCLoader).
 
-| Mod | What it does |
-|---|---|
-| [Smooth Stick Aim](smooth-stick-aim) | Analog stick aiming that keeps the direction you push. A round dead zone replaces the game's square one, every direction has the same reach, and the crosshair no longer drags toward you when you let go of the stick. Adjustable in Options > Gamepad (see below). Made for handhelds like the AYN Thor; works with any controller. |
-| [Switch Button Icons](switch-button-icons) | Adds a Switch choice to Options > Gamepad > Gamepad Icons, using the Nintendo button art from the game, with letters matching Xbox-labeled buttons. |
+| Mod | What it does | Download |
+|---|---|---|
+| [**Smooth Stick Aim**](#smooth-stick-aim) | Analog aiming that goes exactly where you push, with a round dead zone, even reach in every direction and no crosshair drag when you let go. | [1.3.4](https://github.com/catmona/crosscode-mods/releases/tag/smooth-stick-aim-v1.3.4) |
+| [**Switch Button Icons**](#switch-button-icons) | Nintendo Switch button prompts, picked in the game's own options. | [1.1.0](https://github.com/catmona/crosscode-mods/releases/tag/switch-button-icons-v1.1.0) |
 
 ## Install
 
-Download the mod's `.ccmod` file from [Releases](https://github.com/catmona/crosscode-mods/releases) and put it in `CrossCode/assets/mods/`. You need [CCLoader](https://github.com/CCDirectLink/CCLoader).
+1. Install [CCLoader](https://github.com/CCDirectLink/CCLoader) if you don't have it.
+2. Download the mod's `.ccmod` file from its release (links above, or [all releases](https://github.com/catmona/crosscode-mods/releases)).
+3. Put the file in `CrossCode/assets/mods/` and start the game.
 
-## Smooth Stick Aim settings
+To uninstall, delete the `.ccmod` file. Settings the mod saved are ignored once it's gone.
 
-In Options > Gamepad, under Smooth Stick Aim:
+---
+
+## Smooth Stick Aim
+
+The base game reads each stick axis on its own. That gives a square dead zone, so a diagonal push needs more travel to start aiming than a straight one. It also gives uneven reach, since most sticks go further on the diagonals. And when you let go of the right stick, the crosshair is dragged back toward you while the stick springs to centre.
+
+This mod fixes all three:
+
+- **Round dead zone.** A stick counts as pushed by how far it moves in any direction, so diagonals respond as easily as straight pushes.
+- **Same reach everywhere.** The crosshair goes the same distance in every direction.
+- **No release drag.** Letting go leaves the crosshair where you aimed.
+
+Menus and walking read the sticks as before, apart from the round dead zone.
+
+### Settings
+
+Options > Gamepad, under **Smooth Stick Aim**:
 
 | Setting | Default | What it does |
 |---|---|---|
-| Far Crosshair | On | The crosshair stays at full distance in the direction you push, however lightly you push. Throws only use the crosshair's direction, so where they go doesn't change. The game also uses the crosshair's distance to move the camera ahead of you, so with this on the camera always looks ahead (about 72 px) while you aim. Turn it off for the base game's behaviour: a light push keeps the crosshair close and the camera still, a full push looks ahead. |
-| Stick Dead Zone | 8% | How far a stick moves before it counts, the same in every direction (0-20%). Raise it if a worn stick drifts. |
-| Fine Aim | 50% | While the right stick turns slowly (under 40°/s), the aim turns only part as far: at 50%, half. Small adjustments then take twice the thumb movement. Faster turns are 1:1 and pull the aim back onto the stick (fully above 160°/s); the aim never strays more than 15° from the stick, and every new push starts exactly on it. 0% is off. It doesn't change throw spread. |
-| Aim Speed | 75% | How fast the crosshair swings to where the stick points (50-300%; 100% is the base game, which closes about 30% of the remaining turn each frame). Faster settings trail the stick less but look jumpier, because they stop smoothing out the stick's uneven updates. Throw spread doesn't change. |
+| **Far Crosshair** | On | Keeps the crosshair at full distance in the direction you push, however lightly you push. Throws only use the crosshair's direction, so they land the same either way. The camera also looks ahead toward the crosshair (about 72 px) while you aim. Turn it off for the base game's behaviour: a light push keeps the crosshair close and the camera still. |
+| **Stick Dead Zone** | 8% | How far a stick has to move before it counts, the same in every direction (0-20%). Raise it if a worn stick drifts. |
+| **Fine Aim** | 50% | Precision for small corrections. While the right stick turns slowly (under 40°/s), the aim turns only part as far: at 50%, half. Faster turns are 1:1 and pull the aim back onto the stick (fully above 160°/s). The aim never strays more than 15° from the stick, and every new push starts exactly on it. 0% turns it off. |
+| **Aim Speed** | 75% | How fast the crosshair swings to where the stick points (50-300%; 100% is the base game). Higher settings trail the stick less but look jumpier. |
 
-### How the defaults were chosen
+None of the settings change throw spread.
 
-From a 20-second recording of real aiming on an AYN Thor, replayed through the mod with the game's own crosshair and spread rules (spread up to 90°, shrinking by 180° per second, growing when the crosshair turns more than 2.8° in a frame):
+<details>
+<summary><b>How the defaults were chosen</b></summary>
 
-| Aim Speed | Crosshair lag behind the stick (average) | Unevenness of motion while turning | Average throw spread |
+A 20-second recording of real stick input was replayed through the mod using the game's own crosshair and spread rules (spread up to 90°, shrinking by 180° per second, growing when the crosshair turns more than 2.8° in a frame):
+
+| Aim Speed | Crosshair lag behind the stick | Unevenness while turning | Average throw spread |
 |---|---|---|---|
-| 75% | 5.0° | 0.14 | 4.9° |
+| **75%** | 5.0° | 0.14 | 4.9° |
 | 100% (base game) | 3.3° | 0.18 | 4.9° |
 | 150% | 1.9° | 0.25 | 4.9° |
 | 200% | 0.9° | 0.31 | 3.8° |
 | 300% | 0.2° | 0.41 | 3.7° |
 
-(Unevenness: how much the crosshair's frame-to-frame steps vary during a steady turn, relative to their size. The Thor's stick sends readings in bursts, so some frames get none and the next gets two; the base game's smoothing hides that.)
+*Unevenness* is how much the crosshair's frame-to-frame steps vary during a steady turn, relative to their size. Many controllers send stick readings in bursts, so some frames get no new reading and the next gets two. Smoothing hides that, and faster settings smooth less.
 
-- **Aim Speed 75%.** Lag and jumpiness trade off directly, and averaging a few frames instead did no better, so this is down to feel. On the Thor, 75% felt best in hand (100% close behind, 300% too jumpy). Faster settings never add throw spread.
-- **Fine Aim 50%.** A replay can't score this one, because how you correct depends on what you see. 50% doubles the precision of slow adjustments and still leaves a 30° range of fine control before the 15° limit takes over (75% would leave 20°).
-- **Stick Dead Zone 8%.** The Thor's stick returns to exactly 0, so any value works on it. 8% is for other controllers: a worn stick that rests a little off centre could otherwise keep the crosshair up after you let go.
-- **Far Crosshair on.** A camera preference: on looks ahead while aiming, off keeps the base game's camera.
+- **Aim Speed 75%.** Lag and smoothness trade off directly, so this one comes down to feel. 75% felt best in play (100% close behind, 300% too jumpy). Averaging over several frames instead did no better.
+- **Fine Aim 50%.** Doubles the precision of slow adjustments and still leaves a 30° range of fine control before the 15° limit takes over (75% would leave only 20°).
+- **Stick Dead Zone 8%.** Enough to stop a stick that rests a little off centre from holding the crosshair up after you let go.
+- **Far Crosshair on.** A camera preference: on looks ahead while you aim, off keeps the base game's camera.
 
-## Notes
+</details>
 
-- **Smooth Stick Aim** replaces the game's stick checks (`isLeftStickDown`, `isRightStickDown`) and turns off the game's per-axis dead zone for stick values. Other mods that only read stick values work with it.
-- **Switch Button Icons** ships an edited copy of the game's gamepad icon sheet with the Switch glyphs rearranged.
+### Compatibility
+
+Smooth Stick Aim replaces the game's stick checks (`isLeftStickDown`, `isRightStickDown`) and its per-axis stick dead zone. Mods that only read stick values work with it. Mods that replace the same checks may conflict.
+
+---
+
+## Switch Button Icons
+
+Adds a **Switch** choice to Options > Gamepad > Gamepad Icons, drawn from the Nintendo button art already in the game. The letters match the button positions of an Xbox-style layout:
+
+| Position | Button shown |
+|---|---|
+| Bottom | A |
+| Right | B |
+| Left | X |
+| Top | Y |
+| Select / Start | − / + |
+
+The mod ships an edited copy of the game's gamepad icon sheet with the Switch glyphs rearranged.
+
+---
 
 Unofficial; not affiliated with Radical Fish Games. Mostly written with AI assistance (Anthropic's Claude), reviewed and tested by the maintainer. Use at your own risk.
