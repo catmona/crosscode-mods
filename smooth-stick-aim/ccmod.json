@@ -1,8 +1,8 @@
 {
 	"id": "smooth-stick-aim",
-	"version": "1.3.1",
+	"version": "1.3.2",
 	"title": "Smooth Stick Aim",
-	"description": "Analog stick aiming that keeps the direction you push: a round dead zone instead of a square one, the same reach in every direction, and no crosshair drag when you let go of the stick. Settings in Options > Gamepad: Far Crosshair (on: the crosshair stays at full distance and the camera looks ahead while you aim; off: like the base game), Stick Dead Zone (8%), Fine Aim (50%: slow stick turns move the aim half as far, for small adjustments) and Aim Speed (300%: the crosshair follows the stick almost at once; 100% = base game). Made for handhelds like the AYN Thor; works with any controller.",
+	"description": "Analog stick aiming that keeps the direction you push: a round dead zone instead of a square one, the same reach in every direction, and no crosshair drag when you let go of the stick. Settings in Options > Gamepad: Far Crosshair (on: the crosshair stays at full distance and the camera looks ahead while you aim; off: like the base game), Stick Dead Zone (8%), Fine Aim (50%: slow stick turns move the aim half as far, for small adjustments) and Aim Speed (100% = base game). Made for handhelds like the AYN Thor; works with any controller.",
 	"repository": "https://github.com/catmona/crosscode-mods",
 	"tags": ["QoL", "accessibility"],
 	"authors": ["catmona"],
