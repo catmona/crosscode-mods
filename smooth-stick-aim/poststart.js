@@ -13,6 +13,10 @@
 		name: 'Stick Dead Zone',
 		description: 'How far a stick moves before it counts. Raise it if a stick drifts.'
 	};
+	opts['smooth-stick-aim-fine-aim'] = {
+		name: 'Fine Aim',
+		description: 'Slow stick turns move the aim less, for small adjustments. \\c[3]0%\\c[0] is off.'
+	};
 	opts['smooth-stick-aim-aim-speed'] = {
 		name: 'Aim Speed',
 		description: 'How fast the crosshair turns to the stick. \\c[3]100%\\c[0] is the base game.'

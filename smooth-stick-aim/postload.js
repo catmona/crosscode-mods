@@ -17,6 +17,10 @@
 // - Stick Dead Zone: size of the round dead zone (8% by default).
 // - Aim Speed: how fast the crosshair swings to the stick's direction (100% = stock). The game
 //   widens throw spread when the crosshair turns fast, so high values add a little spread.
+// - Fine Aim (50% by default): while the right stick turns slowly (under 40 deg/s), the aim
+//   turns only part as far (50% = half), so small adjustments take bigger thumb movements.
+//   Faster turns are 1:1 and pull the aim back onto the stick (fully above 160 deg/s); the aim
+//   never strays more than 15 deg from the stick, and every new push starts on the stick.
 ig.module('mod.smooth-stick-aim')
 	.requires(
 		'impact.feature.gamepad.gamepad',
@@ -28,14 +32,20 @@ ig.module('mod.smooth-stick-aim')
 		var DOWN_OFF = 0.1; // ...and stops counting once below this
 		var RELEASE_DROP = 0.2; // a fall this big in one frame is the stick springing back
 		var RELEASE_MAX = 0.1; // seconds; a real release reaches centre well within this
+		var FINE_SLOW = (40 * Math.PI) / 180; // rad/s: turns slower than this get the full Fine Aim
+		var FINE_FAST = (160 * Math.PI) / 180; // rad/s: turns faster than this are 1:1 and realign
+		var FINE_MAX_OFF = (15 * Math.PI) / 180; // the aim never strays further from the stick
+		var FINE_SPEED_SMOOTH = 0.05; // seconds; smooths the turn speed so one jumpy frame can't decide
 
 		var OPT_FAR = 'smooth-stick-aim-far-crosshair';
 		var OPT_DEAD_ZONE = 'smooth-stick-aim-dead-zone';
 		var OPT_AIM_SPEED = 'smooth-stick-aim-aim-speed';
+		var OPT_FINE = 'smooth-stick-aim-fine-aim';
 		var DEFAULTS = {};
 		DEFAULTS[OPT_FAR] = true;
 		DEFAULTS[OPT_DEAD_ZONE] = 0.08;
 		DEFAULTS[OPT_AIM_SPEED] = 1;
+		DEFAULTS[OPT_FINE] = 0.5;
 
 		var cat = sc.OPTION_CATEGORY.GAMEPAD;
 		sc.OPTIONS_DEFINITION[OPT_FAR] = {
@@ -57,6 +67,15 @@ ig.module('mod.smooth-stick-aim')
 			type: 'OBJECT_SLIDER',
 			data: { S50: 0.5, S75: 0.75, S100: 1, S125: 1.25, S150: 1.5, S200: 2, S300: 3 },
 			init: DEFAULTS[OPT_AIM_SPEED],
+			cat: cat,
+			fill: true,
+			showPercentage: true
+		};
+
+		sc.OPTIONS_DEFINITION[OPT_FINE] = {
+			type: 'OBJECT_SLIDER',
+			data: { F0: 0, F25: 0.25, F40: 0.4, F50: 0.5, F60: 0.6, F75: 0.75 },
+			init: DEFAULTS[OPT_FINE],
 			cat: cat,
 			fill: true,
 			showPercentage: true
@@ -93,10 +112,37 @@ ig.module('mod.smooth-stick-aim')
 		}
 
 		function newStick() {
-			return { down: false, len: 0, releasing: false, releaseTime: 0, releaseMin: 0 };
+			return { down: false, len: 0, releasing: false, releaseTime: 0, releaseMin: 0, aimSet: false, aim: 0, aimIn: 0, aimSpeed: 0 };
 		}
 
-		function updatePad(pad, dt, deadZone) {
+		function wrap(a) {
+			while (a > Math.PI) a -= 2 * Math.PI;
+			while (a < -Math.PI) a += 2 * Math.PI;
+			return a;
+		}
+
+		// Fine Aim: st.aim is the aim angle, which trails the stick's angle on slow turns.
+		function updateAim(st, x, y, dt, fine) {
+			if (!st.down || !(x || y)) {
+				st.aimSet = false;
+				return;
+			}
+			var a = Math.atan2(y, x);
+			if (!st.aimSet || !(fine > 0) || !(dt > 0)) {
+				st.aimSet = true;
+				st.aim = st.aimIn = a;
+				st.aimSpeed = 0;
+				return;
+			}
+			var d = wrap(a - st.aimIn);
+			st.aimIn = a;
+			st.aimSpeed += (Math.abs(d) / dt - st.aimSpeed) * Math.min(1, dt / FINE_SPEED_SMOOTH);
+			var t = Math.max(0, Math.min(1, (st.aimSpeed - FINE_SLOW) / (FINE_FAST - FINE_SLOW)));
+			var off = wrap(st.aim + (1 - fine * (1 - t)) * d - a) * Math.pow(1 - t, dt * 60);
+			st.aim = a + Math.max(-FINE_MAX_OFF, Math.min(FINE_MAX_OFF, off));
+		}
+
+		function updatePad(pad, dt, deadZone, fine) {
 			if (!pad.smoothStickAim) pad.smoothStickAim = [newStick(), newStick()];
 			var raw = pad.smoothStickAimRaw || [];
 			for (var i = 0; i < 2; i++) {
@@ -120,7 +166,16 @@ ig.module('mod.smooth-stick-aim')
 					if (len > st.releaseMin + 0.1 || st.releaseTime > RELEASE_MAX) st.releasing = false;
 				}
 				st.len = len;
+				if (i === 1) updateAim(st, out[0], out[1], dt, fine);
 			}
+		}
+
+		function aimOf(manager) {
+			for (var p = manager.activeGamepads.length; p--; ) {
+				var s = manager.activeGamepads[p].smoothStickAim;
+				if (s && s[1].down && s[1].aimSet) return s[1].aim;
+			}
+			return null;
 		}
 
 		function anyStick(manager, i, field) {
@@ -142,8 +197,9 @@ ig.module('mod.smooth-stick-aim')
 			onPreUpdate: function () {
 				var result = this.parent();
 				var dt = (ig.system && ig.system.actualTick) || 0;
-				var deadZone = setting(OPT_DEAD_ZONE);
-				for (var key in this.gamepads) updatePad(this.gamepads[key], dt, deadZone);
+				var deadZone = setting(OPT_DEAD_ZONE),
+					fine = setting(OPT_FINE);
+				for (var key in this.gamepads) updatePad(this.gamepads[key], dt, deadZone, fine);
 				return result;
 			},
 			isLeftStickDown: function () {
@@ -157,11 +213,17 @@ ig.module('mod.smooth-stick-aim')
 				var stick = STICK_OF[a];
 				if (stick === undefined) return this.parent(a, useDeadzone);
 				var v = this.parent(a, false);
-				if (stick !== 1 || !this.smoothStickAimDirOnly) return v;
-				// Right stick while the crosshair is placed: the pushed direction at full length.
-				var other = this.parent(a === ig.AXES.RIGHT_STICK_X ? ig.AXES.RIGHT_STICK_Y : ig.AXES.RIGHT_STICK_X, false);
+				if (stick !== 1 || !this.smoothStickAimPlacing) return v;
+				// Right stick while the crosshair is placed: the Fine Aim angle, at full length
+				// with Far Crosshair on.
+				var isX = a === ig.AXES.RIGHT_STICK_X;
+				var other = this.parent(isX ? ig.AXES.RIGHT_STICK_Y : ig.AXES.RIGHT_STICK_X, false);
 				var len = Math.sqrt(v * v + other * other);
-				return len > 0 ? v / len : 0;
+				if (!(len > 0)) return 0;
+				var out = this.smoothStickAimFar ? 1 : len;
+				var aim = aimOf(this);
+				if (aim === null) return (v / len) * out;
+				return (isX ? Math.cos(aim) : Math.sin(aim)) * out;
 			},
 			smoothStickAimReleasing: function () {
 				return anyStick(this, 1, 'releasing');
@@ -176,12 +238,13 @@ ig.module('mod.smooth-stick-aim')
 				var pos = crosshair.coll.pos,
 					oldX = pos.x,
 					oldY = pos.y;
-				pads.smoothStickAimDirOnly = setting(OPT_FAR);
+				pads.smoothStickAimPlacing = true;
+				pads.smoothStickAimFar = setting(OPT_FAR);
 				var result;
 				try {
 					result = this.parent(crosshair);
 				} finally {
-					pads.smoothStickAimDirOnly = false;
+					pads.smoothStickAimPlacing = false;
 				}
 				// The game moves the crosshair a fraction k = actualTick * 18 of the way to the
 				// stick's target each frame; scale that step so the fraction becomes k * speed.
@@ -196,5 +259,5 @@ ig.module('mod.smooth-stick-aim')
 			}
 		});
 
-		window.smoothStickAim = { shape: shape, setting: setting };
+		window.smoothStickAim = { shape: shape, setting: setting, updateAim: updateAim, newStick: newStick };
 	});

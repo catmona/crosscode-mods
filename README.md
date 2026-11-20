@@ -19,6 +19,7 @@ In Options > Gamepad, under Smooth Stick Aim:
 |---|---|---|
 | Far Crosshair | On | The crosshair stays at full distance in the direction you push, however lightly you push. Throws only use the crosshair's direction, so where they go doesn't change. The game also uses the crosshair's distance to move the camera ahead of you, so with this on the camera always looks ahead (about 72 px) while you aim. Turn it off for the base game's behaviour: a light push keeps the crosshair close and the camera still, a full push looks ahead. |
 | Stick Dead Zone | 8% | How far a stick moves before it counts, the same in every direction (0-20%). Raise it if a worn stick drifts. |
+| Fine Aim | 50% | While the right stick turns slowly (under 40°/s), the aim turns only part as far: at 50%, half. Small adjustments then take twice the thumb movement. Faster turns are 1:1 and pull the aim back onto the stick (fully above 160°/s); the aim never strays more than 15° from the stick, and every new push starts exactly on it. 0% is off. The realign on fast turns adds a little throw spread (replay: average 6.1° off, 6.4° at 50%). |
 | Aim Speed | 100% | How fast the crosshair swings to where the stick points (50-300%; 100% is the base game, which closes about 30% of the remaining turn each frame at 60 fps). The game widens throw spread when the crosshair turns quickly, so faster settings snap quicker with slightly wider spread right after a flick (in a replay of real stick input, average spread went from 6.1° at 100% to 6.5° at 300%). |
 
 ## Notes
