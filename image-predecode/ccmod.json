@@ -1,0 +1,14 @@
+{
+	"id": "image-predecode",
+	"version": "1.0.0",
+	"title": "Image Predecode",
+	"description": "Decodes each image while the game is loading instead of on its first draw, so entering a new area doesn't stutter while Chromium decodes tiles and sprites. Made for slow (emulated) setups.",
+	"repository": "https://github.com/catmona/crosscode-mods",
+	"tags": [
+		"QoL"
+	],
+	"authors": [
+		"catmona"
+	],
+	"postload": "postload.js"
+}

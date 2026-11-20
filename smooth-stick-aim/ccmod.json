@@ -1,0 +1,10 @@
+{
+	"id": "smooth-stick-aim",
+	"version": "1.0.0",
+	"title": "Smooth Stick Aim",
+	"description": "Analog stick aiming that keeps the direction you push: a round dead zone instead of a square one, the same reach in every direction, and no crosshair drag when you let go of the stick. Made for handhelds like the AYN Thor; works with any controller.",
+	"repository": "https://github.com/catmona/crosscode-mods",
+	"tags": ["QoL", "accessibility"],
+	"authors": ["catmona"],
+	"postload": "postload.js"
+}

@@ -1,0 +1,16 @@
+{
+	"id": "switch-button-icons",
+	"version": "1.1.0",
+	"title": "Switch Button Icons",
+	"description": "Adds a Switch choice to Options > Gamepad > Gamepad Icons, using the Nintendo button art already in the game (letters match Xbox-labeled buttons: A bottom, B right, X left, Y top; -/+ for select/start).",
+	"repository": "https://github.com/catmona/crosscode-mods",
+	"tags": [
+		"QoL",
+		"cosmetic"
+	],
+	"authors": [
+		"catmona"
+	],
+	"postload": "postload.js",
+	"poststart": "poststart.js"
+}
