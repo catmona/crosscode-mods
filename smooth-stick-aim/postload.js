@@ -4,11 +4,15 @@
 // zone, so a diagonal push needs much more travel to start aiming than a straight one. It also
 // drags the crosshair toward you while a released stick springs back to centre. Many sticks
 // (e.g. the AYN Thor's) reach about 1.3 on the diagonals, so diagonal aim reaches further.
+// And the crosshair sits as far out as the stick is pushed, so a light push puts it right next
+// to you, where it is hard to see which way it points (throws only use its direction).
 //
 // This mod, for each stick on each pad:
 // - applies a round dead zone, rescales the rest to start at 0 and caps the length at 1;
 // - decides "stick pushed" from that length, with hysteresis;
-// - holds the crosshair still while the right stick snaps back to centre after a release.
+// - holds the crosshair still while the right stick snaps back to centre after a release;
+// - keeps the crosshair at full distance in the pushed direction, however far the stick is
+//   pushed (the game also uses that distance to look ahead with the camera, as on a full push).
 ig.module('mod.smooth-stick-aim')
 	.requires('impact.feature.gamepad.gamepad', 'game.feature.player.entities.crosshair')
 	.defines(function () {
@@ -99,7 +103,14 @@ ig.module('mod.smooth-stick-aim')
 			},
 			// Shaped sticks already have their dead zone; don't cut each axis a second time.
 			getAxesValue: function (a, useDeadzone) {
-				return this.parent(a, STICK_OF[a] === undefined ? useDeadzone : false);
+				var stick = STICK_OF[a];
+				if (stick === undefined) return this.parent(a, useDeadzone);
+				var v = this.parent(a, false);
+				if (stick !== 1 || !this.smoothStickAimDirOnly) return v;
+				// Right stick while the crosshair is placed: the pushed direction at full length.
+				var other = this.parent(a === ig.AXES.RIGHT_STICK_X ? ig.AXES.RIGHT_STICK_Y : ig.AXES.RIGHT_STICK_X, false);
+				var len = Math.sqrt(v * v + other * other);
+				return len > 0 ? v / len : 0;
 			},
 			smoothStickAimReleasing: function () {
 				return anyStick(this, 1, 'releasing');
@@ -108,8 +119,15 @@ ig.module('mod.smooth-stick-aim')
 
 		sc.PlayerCrossHairController.inject({
 			updatePos: function (crosshair) {
-				if (this.gamepadMode && ig.gamepad.smoothStickAimReleasing && ig.gamepad.smoothStickAimReleasing()) return;
-				return this.parent(crosshair);
+				var pads = ig.gamepad;
+				if (!this.gamepadMode || !pads || !pads.smoothStickAimReleasing) return this.parent(crosshair);
+				if (pads.smoothStickAimReleasing()) return;
+				pads.smoothStickAimDirOnly = true;
+				try {
+					return this.parent(crosshair);
+				} finally {
+					pads.smoothStickAimDirOnly = false;
+				}
 			}
 		});
 
